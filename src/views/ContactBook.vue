@@ -6,7 +6,7 @@
     <div class="mt-3 col-md-6">
       <h4>
         Danh bạ
-        <i class="fas fa-address-book"></i>
+        <font-awesome-icon icon="address-book" />
       </h4>
       <ContactList
         v-if="filteredContactsCount > 0"
@@ -16,13 +16,15 @@
       <p v-else>Không có liên hệ nào.</p>
       <div class="mt-3 row justify-content-around align-items-center">
         <button class="btn btn-sm btn-primary" @click="refreshList()">
-          <i class="fas fa-redo"></i> Làm mới
+          <font-awesome-icon icon="rotate-right" />
+          Làm mới
         </button>
         <button class="btn btn-sm btn-success" @click="goToAddContact">
-          <i class="fas fa-plus"></i> Thêm mới
+          <font-awesome-icon icon="plus" />
+          Thêm mới
         </button>
         <button class="btn btn-sm btn-danger" @click="removeAllContacts">
-          <i class="fas fa-trash"></i> Xóa tất cả
+          <font-awesome-icon icon="trash" /> Xóa tất cả
         </button>
       </div>
     </div>
@@ -52,17 +54,20 @@ import ContactCard from "@/components/ContactCard.vue";
 import InputSearch from "@/components/InputSearch.vue";
 import ContactList from "@/components/ContactList.vue";
 import ContactService from "@/services/contact.service";
+import LoadingComponent from "./Loading.vue";
 export default {
   components: {
     ContactCard,
     InputSearch,
     ContactList,
+    LoadingComponent,
   },
   data() {
     return {
       contacts: [],
       activeIndex: -1,
       searchText: "",
+      loadata: true,
     };
   },
   watch: {
@@ -73,6 +78,11 @@ export default {
     },
   },
   computed: {
+    favoriteList() {
+      return this.contacts.filter((_contact, idx) => {
+        this.contactStrings[idx].includes();
+      });
+    },
     // Chuyển các đối tượng contact thành chuỗi để tiện cho tìm kiếm.
     contactStrings() {
       return this.contacts.map((contact) => {
@@ -92,13 +102,15 @@ export default {
       return this.filteredContacts[this.activeIndex];
     },
     filteredContactsCount() {
+      // console.log(`E: ${this.filteredContacts}`);
+      // return 2;
       return this.filteredContacts.length;
     },
   },
   methods: {
     async retrieveContacts() {
       try {
-        this.contacts = await ContactService.getAll();
+        this.contacts = await ContactService.getAllOfMe();
       } catch (error) {
         console.log(error);
       }
@@ -110,7 +122,7 @@ export default {
     async removeAllContacts() {
       if (confirm("Bạn muốn xóa tất cả Liên hệ?")) {
         try {
-          await ContactService.deleteAll();
+          await ContactService.deleteAllOfMe();
           this.refreshList();
         } catch (error) {
           console.log(error);
@@ -118,7 +130,6 @@ export default {
       }
     },
     goToAddContact() {
-      console.log("check");
       this.$router.push({ name: "contact.add" });
     },
   },
